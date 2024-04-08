@@ -10,7 +10,7 @@ import frc.robot.subsystems.TopShooter;
 
 public class SetArmAim extends Command {
     
-    public final Arm m_arm;
+    public final Arm m_arm;//
     public final DriveSubsystem m_drive;
     public final TopShooter m_top;
     public final BottomShooter m_bottom;
