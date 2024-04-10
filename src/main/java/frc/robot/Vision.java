@@ -76,7 +76,7 @@ public class Vision {
         return camera.getLatestResult();
     }
     
-    public double rotationToObject() {
+    public double rotationToNote() {
         var result = oCamera.getLatestResult();
         if(result.hasTargets()){
             PhotonTrackedTarget target = result.getBestTarget();
@@ -87,7 +87,7 @@ public class Vision {
         }
     }
 
-    public double[] rotationToSpeaker() {
+    public double[] LocationToSpeaker() {
         var result = camera.getLatestResult();
         double[] coordinates = new double[2];
         coordinates[0] = 1.5;

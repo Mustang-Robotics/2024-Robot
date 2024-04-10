@@ -7,10 +7,11 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.GenericHID;
 //import edu.wpi.first.networktables.GenericEntry;
 //import edu.wpi.first.math.MathUtil;
 //import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.wpilibj.XboxController;
+//import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.SpeakerShoot;
@@ -32,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 
 
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -44,8 +46,9 @@ import frc.robot.subsystems.ClimbingSubsystem;
 //import edu.wpi.first.networktables.GenericEntry;
 
 public class RobotContainer {
-    XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
-    XboxController m_operatorController = new XboxController(OIConstants.kOperatorControllerPort);
+    GenericHID m_driverController = new GenericHID(OIConstants.kDriverControllerPort);
+    //XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+    //XboxController m_operatorController = new XboxController(OIConstants.kOperatorControllerPort);
     private final DriveSubsystem m_robotDrive = new DriveSubsystem();
     SendableChooser<Command> m_chooser;
     private final Arm m_arm = new Arm();
@@ -88,16 +91,16 @@ public class RobotContainer {
             // Turning is controlled by the X axis of the right stick.
             new RunCommand(
                 () -> m_robotDrive.drive(
-                    -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
-                    -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
-                    -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
+                    -MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband),
+                    -MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband),
+                    -MathUtil.applyDeadband(m_driverController.getRawAxis(4), OIConstants.kDriveDeadband),
                 true, true, true), //Base: true, true
                 m_robotDrive));
             //new RunCommand(
             //    () -> m_ShooterSubsystem.runFeeder(m_driverController.getRightTriggerAxis()), m_ShooterSubsystem);
         m_climbingSubsystem.setDefaultCommand(
             new RunCommand(
-                () -> m_climbingSubsystem.SetClimbSpeed(-m_driverController.getLeftTriggerAxis() + m_driverController.getRightTriggerAxis()), m_climbingSubsystem));    
+                () -> m_climbingSubsystem.SetClimbSpeed(-m_driverController.getRawAxis(2) + m_driverController.getRawAxis(3)), m_climbingSubsystem));    
             
 
         NamedCommands.registerCommand("Intake", new AutoIntakeNote(m_arm, m_intakeSubsystem));//new IntakeNote(m_arm, m_intakeSubsystem));
@@ -120,18 +123,18 @@ public class RobotContainer {
         //new JoystickButton(m_driverController, Button.kStart.value).toggleOnTrue(new IntakeNote(m_arm, m_intakeSubsystem));//new StartEndCommand(() -> m_ShooterSubsystem.runFeeder(.5),() -> m_ShooterSubsystem.runFeeder(0), m_ShooterSubsystem));
         new JoystickButton(m_driverController, Button.kStart.value).onTrue(new SpeakerShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom).andThen(new RunCommand(
                 () -> m_robotDrive.drive(
-                    -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
-                    -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
-                    -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
+                    -MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband),
+                    -MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband),
+                    -MathUtil.applyDeadband(m_driverController.getRawAxis(4), OIConstants.kDriveDeadband),
                 true, true, true), //Base: true, true
                 m_robotDrive)));
-        new JoystickButton(m_driverController, Button.kBack.value).toggleOnTrue(new ParallelCommandGroup(
+        new POVButton(m_driverController, 270).toggleOnTrue(new ParallelCommandGroup(
             new SetArmAim(m_arm, m_robotDrive, m_ShooterSubsystem, m_bottom), 
             new RunCommand(() -> m_robotDrive.drive(
-                    -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
-                    -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
-                    circleNote.calculate(m_robotDrive.vision.rotationToSpeaker()[1], 0)
-                    -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
+                    -MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband),
+                    -MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband),
+                    circleNote.calculate(m_robotDrive.vision.LocationToSpeaker()[1], 0)
+                    -MathUtil.applyDeadband(m_driverController.getRawAxis(4), OIConstants.kDriveDeadband),
                 true, true, true), //Base: true, true
                 m_robotDrive)));
         new JoystickButton(m_driverController, Button.kB.value).whileTrue(new StartEndCommand(() -> m_intakeSubsystem.setSpeed(1),
@@ -147,10 +150,10 @@ public class RobotContainer {
         //new JoystickButton(m_driverController, Button.kRightBumper.value).toggleOnTrue(new AmpShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom));
         new JoystickButton(m_driverController, Button.kY.value).toggleOnTrue(new ParallelRaceGroup(new RunCommand(
                 () -> m_robotDrive.drive(
-                    (MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband)*0.7)-0.3,
-                    MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
-                    circleNote.calculate(m_robotDrive.vision.rotationToObject(), 0)
-                    -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
+                    (MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband)*0.7)-0.3,
+                    MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband),
+                    circleNote.calculate(m_robotDrive.vision.rotationToNote(), 0)
+                    -MathUtil.applyDeadband(m_driverController.getRawAxis(4), OIConstants.kDriveDeadband),
                 false, true, false), //Base: true, true
                 m_robotDrive), new IntakeNote(m_arm, m_intakeSubsystem)));
     }

@@ -46,6 +46,10 @@ public class BottomShooter extends PIDSubsystem{
         setSetpoint(0);
     }
 
+    public void SetClimbSpeed(double speed) {
+        bottomMotor.set(speed);
+    }
+
     @Override
     public void useOutput(double output, double setpoint) {
         bottomMotor.setVoltage(output + m_shooterFeedforward.calculate(setpoint));

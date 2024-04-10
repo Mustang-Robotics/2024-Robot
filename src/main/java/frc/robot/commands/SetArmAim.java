@@ -11,6 +11,7 @@ import frc.robot.subsystems.TopShooter;
 public class SetArmAim extends Command {
     
     public final Arm m_arm;//
+    
     public final DriveSubsystem m_drive;
     public final TopShooter m_top;
     public final BottomShooter m_bottom;
@@ -25,7 +26,7 @@ public class SetArmAim extends Command {
     
     @Override
     public void execute(){
-        m_arm.setGoal(Constants.Arm.goal.get(m_drive.vision.rotationToSpeaker()[0]));
+        m_arm.setGoal(Constants.Arm.goal.get(m_drive.vision.LocationToSpeaker()[0]));
         m_top.setSetpoint(3000);
         m_bottom.setSetpoint(3000);
     }
