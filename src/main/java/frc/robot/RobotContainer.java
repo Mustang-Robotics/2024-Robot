@@ -118,10 +118,10 @@ public class RobotContainer {
     //private GenericEntry shooterSpeedDiff = m_arm.tab.add("shooterSpeedDiff", 0).getEntry();
     private void configureButtonBindings() { //NOTE: All button commands
          
-        new JoystickButton(m_driverController, Button.kA.value).whileTrue(new RunCommand(() -> m_robotDrive.setX(), m_robotDrive));
+        new JoystickButton(m_driverController, Button.kX.value).whileTrue(new RunCommand(() -> m_robotDrive.setX(), m_robotDrive));
         //new JoystickButton(m_driverController, Button.kA.value).onTrue(new RunCommand(() -> m_arm.setGoal(setPoint.getDouble(0)), m_arm));
         //new JoystickButton(m_driverController, Button.kStart.value).toggleOnTrue(new IntakeNote(m_arm, m_intakeSubsystem));//new StartEndCommand(() -> m_ShooterSubsystem.runFeeder(.5),() -> m_ShooterSubsystem.runFeeder(0), m_ShooterSubsystem));
-        new JoystickButton(m_driverController, Button.kStart.value).onTrue(new SpeakerShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom).andThen(new RunCommand(
+        new POVButton(m_driverController, 90).onTrue(new SpeakerShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom).andThen(new RunCommand(
                 () -> m_robotDrive.drive(
                     -MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband),
                     -MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband),
@@ -143,19 +143,19 @@ public class RobotContainer {
 
         //new JoystickButton(m_driverController, Button.kBack.value).onTrue(new InitializePrepareShoot(ArmAdjustmentActiveTF, this, m_ShooterSubsystem, m_bottom));
         new JoystickButton(m_driverController, Button.kRightBumper.value).toggleOnTrue(new ParallelCommandGroup(new SetArm(m_arm, 115), AmpPathCommand).andThen(new AmpShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom)));
-        new JoystickButton(m_driverController, Button.kLeftBumper.value).whileTrue(new RunCommand(() -> m_arm.setGoal(115), m_arm));
+        new JoystickButton(m_driverController, Button.kY.value).onTrue(new RunCommand(() -> m_arm.setGoal(115), m_arm));
         //new JoystickButton(m_driverController, Button.kB.value).toggleOnTrue(stageBottomPathCommand.andThen(new AShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom)));
         //new JoystickButton(m_driverController, Button.kY.value).toggleOnTrue(stageMiddleCommand.andThen(new AShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom)));
-        new JoystickButton(m_driverController, Button.kX.value).toggleOnTrue(stageTopPathCommand.andThen(new AShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom)));
+        new JoystickButton(m_driverController, Button.kA.value).toggleOnTrue(stageTopPathCommand.andThen(new AShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom)));
         //new JoystickButton(m_driverController, Button.kRightBumper.value).toggleOnTrue(new AmpShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom));
-        new JoystickButton(m_driverController, Button.kY.value).toggleOnTrue(new ParallelRaceGroup(new RunCommand(
+        new JoystickButton(m_driverController, Button.kLeftBumper.value).toggleOnTrue(new ParallelRaceGroup(new RunCommand(
                 () -> m_robotDrive.drive(
-                    (MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband)*0.7)-0.3,
+                    (MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband)),
                     MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband),
                     circleNote.calculate(m_robotDrive.vision.rotationToNote(), 0)
                     -MathUtil.applyDeadband(m_driverController.getRawAxis(4), OIConstants.kDriveDeadband),
                 false, true, false), //Base: true, true
-                m_robotDrive), new IntakeNote(m_arm, m_intakeSubsystem)));
+                m_robotDrive), new IntakeNote(m_arm, m_intakeSubsystem, m_driverController)));
     }
     //If (on & button.on), run adjustment, else, dont
     
