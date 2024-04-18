@@ -5,9 +5,10 @@
   "pathFolders": [
     "A Transitions",
     "Amp Folder",
+    "Center Transitions",
+    "B Transitions",
     "Positional Shoot Locations",
-    "Stage to A",
-    "Center Transitions"
+    "Stage to A"
   ],
   "autoFolders": [],
   "defaultMaxVel": 2.0,

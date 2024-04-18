@@ -27,8 +27,8 @@ public class SetArmAim extends Command {
     @Override
     public void execute(){
         m_arm.setGoal(Constants.Arm.goal.get(m_drive.vision.LocationToSpeaker()[0]));
-        m_top.setSetpoint(3000);
-        m_bottom.setSetpoint(3000);
+        m_top.setSetpoint(3500);
+        m_bottom.setSetpoint(3500);
     }
 
     @Override

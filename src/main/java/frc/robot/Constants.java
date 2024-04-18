@@ -11,6 +11,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -199,6 +200,9 @@ public final class Constants {
       public static final Pose3d aprilTagSpeaker = new Pose3d(-1.5, 218.42, 57.13, new Rotation3d()); 
       public static final Transform3d speakerPosOffset = new Transform3d(0, 9.055, 23.368, new Rotation3d()); 
       public static final Pose3d speakerPose = new Pose3d(-1.5, 227.475, 80.498, new Rotation3d()); 
+
+      
+      public static final Translation2d ampCornerPos = new Translation2d(72.5, 300.0); //300 and 0 are estimated
       /* 
       Speaker Coords: [-1.5, 218.42, 57.13(53.88 + 1/2(6.5))] + 
       Speaker Offset[

@@ -1,7 +1,7 @@
 package frc.robot.commands;
 
 
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+//import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 //import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -12,7 +12,7 @@ public class AutoIntakeNote extends SequentialCommandGroup {
     public AutoIntakeNote(Arm arm, IntakeSubsystem intake){
         addCommands(
             new SetArm(arm, 23),
-            new ParallelRaceGroup(new SetIntakeSpeed_SensorStop(intake, -1),  new WaitCommand(3.5)),
+            new SetIntakeSpeed_SensorStop(intake, -1),
             new SetArm(arm, 42),
             new SetIntakeSpeed(intake, .3),
             new WaitCommand(.05),

@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.FieldPositionConstants;
 import frc.utils.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -143,6 +144,15 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void SetRobotPose(double angle) {
     m_pose.setRobotPose(new Pose2d(new Translation2d(0,0), new Rotation2d(angle)));
+  }
+
+  public double CalcCornerShoot() {
+    var currentPos = m_odometry.getEstimatedPosition();
+    var cornerPos = FieldPositionConstants.ampCornerPos;
+    var hyp = Math.sqrt(Math.pow((currentPos.getX() - cornerPos.getX()), 2) + Math.pow((currentPos.getY() - cornerPos.getY()), 2));
+    var opp = Math.abs(cornerPos.getX() - currentPos.getX());
+    var shootAngle = Math.asin(opp * Math.sin(90)/hyp);
+    return shootAngle;
   }
 
   /* 

@@ -4,7 +4,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 
-import edu.wpi.first.math.MathUtil;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -17,13 +17,19 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.commands.SpeakerShoot;
 import frc.robot.commands.AShoot;
 import frc.robot.commands.CornerAShoot;
+import frc.robot.commands.FieldCentricDrive;
 import frc.robot.commands.IntakeNote;
-
+import frc.robot.commands.NoteCentricDrive;
+import frc.robot.commands.PassingShot;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import frc.robot.commands.SetArm;
 import frc.robot.commands.SetArmAim;
+import frc.robot.commands.SetShooterSpeed;
+import frc.robot.commands.SpeakerFieldRelativeDrive;
 import frc.robot.commands.AutoIntakeNote;
+import frc.robot.commands.AutoSpeakerShoot;
+import frc.robot.commands.AutoBeamBreak;
 
 import frc.robot.commands.AmpShoot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -62,7 +68,7 @@ public class RobotContainer {
     public Command stageMiddleCommand;
     public Command stageTopPathCommand;
     public Command AmpPathCommand;
-    PIDController circleNote = new PIDController(.02, 0, 0);
+    PIDController followPID = new PIDController(.02, 0, 0);
 
     public boolean ArmAdjustmentActiveTF;
     public boolean buttonPressActiveTF;
@@ -75,13 +81,6 @@ public class RobotContainer {
         m_bottom.enable();
         m_arm.enable();
         buildPathCommands();
-
-        ArmAdjustmentActiveTF = false;
-        buttonPressActiveTF = false;
-        
-        
-        
-        
     
         configureButtonBindings();
         m_robotDrive.calibrateGyro();
@@ -89,13 +88,7 @@ public class RobotContainer {
         m_robotDrive.setDefaultCommand(
             // The left stick controls translation of the robot.
             // Turning is controlled by the X axis of the right stick.
-            new RunCommand(
-                () -> m_robotDrive.drive(
-                    -MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband),
-                    -MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband),
-                    -MathUtil.applyDeadband(m_driverController.getRawAxis(4), OIConstants.kDriveDeadband),
-                true, true, true), //Base: true, true
-                m_robotDrive));
+            new FieldCentricDrive(m_robotDrive, m_driverController));
             //new RunCommand(
             //    () -> m_ShooterSubsystem.runFeeder(m_driverController.getRightTriggerAxis()), m_ShooterSubsystem);
         m_climbingSubsystem.setDefaultCommand(
@@ -108,37 +101,35 @@ public class RobotContainer {
         NamedCommands.registerCommand("AmpShoot", new AmpShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom));
         NamedCommands.registerCommand("AShoot", new AShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom));
         NamedCommands.registerCommand("CornerAShoot", new CornerAShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom));
+
+        //Efficient Commands
+        NamedCommands.registerCommand("BeamBreak", new AutoBeamBreak(m_intakeSubsystem));
+        NamedCommands.registerCommand("SetArm", new SetArm(m_arm, 55));//Adjust this, might be different for each shoot pos.
+        NamedCommands.registerCommand("SetArmAim", new SetArmAim(m_arm, m_robotDrive, m_ShooterSubsystem, m_bottom));
+        NamedCommands.registerCommand("SpeakerFieldRelativeDrive", new SpeakerFieldRelativeDrive(m_robotDrive, m_driverController, followPID));
+        NamedCommands.registerCommand("AutoSpeakerShoot", new AutoSpeakerShoot(m_intakeSubsystem, m_ShooterSubsystem, m_bottom));
         m_chooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", m_chooser);
-                
+        
     }
     
     //private GenericEntry setPoint = m_arm.tab.add("setPoint", 90).getEntry();
-    //private GenericEntry shooterSpeed = m_arm.tab.add("shooterSpeed", 4500).getEntry();
-    //private GenericEntry shooterSpeedDiff = m_arm.tab.add("shooterSpeedDiff", 0).getEntry();
     private void configureButtonBindings() { //NOTE: All button commands
          
         new JoystickButton(m_driverController, Button.kX.value).whileTrue(new RunCommand(() -> m_robotDrive.setX(), m_robotDrive));
         //new JoystickButton(m_driverController, Button.kA.value).onTrue(new RunCommand(() -> m_arm.setGoal(setPoint.getDouble(0)), m_arm));
         //new JoystickButton(m_driverController, Button.kStart.value).toggleOnTrue(new IntakeNote(m_arm, m_intakeSubsystem));//new StartEndCommand(() -> m_ShooterSubsystem.runFeeder(.5),() -> m_ShooterSubsystem.runFeeder(0), m_ShooterSubsystem));
-        new POVButton(m_driverController, 90).onTrue(new SpeakerShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom).andThen(new RunCommand(
-                () -> m_robotDrive.drive(
-                    -MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband),
-                    -MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband),
-                    -MathUtil.applyDeadband(m_driverController.getRawAxis(4), OIConstants.kDriveDeadband),
-                true, true, true), //Base: true, true
-                m_robotDrive)));
+        new POVButton(m_driverController, 90).onTrue(new SpeakerShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom)
+        .andThen(new FieldCentricDrive(m_robotDrive, m_driverController)));
         new POVButton(m_driverController, 270).toggleOnTrue(new ParallelCommandGroup(
             new SetArmAim(m_arm, m_robotDrive, m_ShooterSubsystem, m_bottom), 
-            new RunCommand(() -> m_robotDrive.drive(
-                    -MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband),
-                    -MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband),
-                    circleNote.calculate(m_robotDrive.vision.LocationToSpeaker()[1], 0)
-                    -MathUtil.applyDeadband(m_driverController.getRawAxis(4), OIConstants.kDriveDeadband),
-                true, true, true), //Base: true, true
-                m_robotDrive)));
+            new SpeakerFieldRelativeDrive(m_robotDrive, m_driverController, followPID)));
         new JoystickButton(m_driverController, Button.kB.value).whileTrue(new StartEndCommand(() -> m_intakeSubsystem.setSpeed(1),
             () -> m_intakeSubsystem.setSpeed(0), m_intakeSubsystem));
+
+
+        new JoystickButton(m_driverController, Button.kStart.value).whileTrue(new ParallelCommandGroup(new PassingShot(m_robotDrive, m_driverController, followPID), new SetArm(m_arm, 50), new SetShooterSpeed(m_ShooterSubsystem, m_bottom, 3500, 0, 0)));
+        
         
 
         //new JoystickButton(m_driverController, Button.kBack.value).onTrue(new InitializePrepareShoot(ArmAdjustmentActiveTF, this, m_ShooterSubsystem, m_bottom));
@@ -148,16 +139,11 @@ public class RobotContainer {
         //new JoystickButton(m_driverController, Button.kY.value).toggleOnTrue(stageMiddleCommand.andThen(new AShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom)));
         new JoystickButton(m_driverController, Button.kA.value).toggleOnTrue(stageTopPathCommand.andThen(new AShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom)));
         //new JoystickButton(m_driverController, Button.kRightBumper.value).toggleOnTrue(new AmpShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom));
-        new JoystickButton(m_driverController, Button.kLeftBumper.value).toggleOnTrue(new ParallelRaceGroup(new RunCommand(
-                () -> m_robotDrive.drive(
-                    (MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband)),
-                    MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband),
-                    circleNote.calculate(m_robotDrive.vision.rotationToNote(), 0)
-                    -MathUtil.applyDeadband(m_driverController.getRawAxis(4), OIConstants.kDriveDeadband),
-                false, true, false), //Base: true, true
-                m_robotDrive), new IntakeNote(m_arm, m_intakeSubsystem, m_driverController)));
+        new JoystickButton(m_driverController, Button.kLeftBumper.value).toggleOnTrue(new ParallelRaceGroup(
+            new NoteCentricDrive(m_robotDrive, m_driverController, followPID), 
+            new IntakeNote(m_arm, m_intakeSubsystem, m_driverController)));
     }
-    //If (on & button.on), run adjustment, else, dont
+
     
     
 
