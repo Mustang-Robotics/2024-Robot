@@ -72,12 +72,6 @@
                             "data": {
                               "name": "SetArmAim"
                             }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "SpeakerFieldRelativeDrive"
-                            }
                           }
                         ]
                       }
@@ -155,12 +149,6 @@
                             "data": {
                               "name": "SetArmAim"
                             }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "SpeakerFieldRelativeDrive"
-                            }
                           }
                         ]
                       }
@@ -237,12 +225,6 @@
                             "type": "named",
                             "data": {
                               "name": "SetArmAim"
-                            }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "SpeakerFieldRelativeDrive"
                             }
                           }
                         ]
