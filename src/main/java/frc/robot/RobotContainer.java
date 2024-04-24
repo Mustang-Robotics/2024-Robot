@@ -1,11 +1,15 @@
 package frc.robot;
+import java.util.Optional;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 //import edu.wpi.first.networktables.GenericEntry;
@@ -70,9 +74,6 @@ public class RobotContainer {
     public Command AmpPathCommand;
     PIDController followPID = new PIDController(.02, 0, 0);
 
-    public boolean ArmAdjustmentActiveTF;
-    public boolean buttonPressActiveTF;
-
     public RobotContainer() {// Configure the button bindings
         //m_robotDrive.AutonomousBuilder();
         //Subsystem Initialization Functions
@@ -81,6 +82,7 @@ public class RobotContainer {
         m_bottom.enable();
         m_arm.enable();
         buildPathCommands();
+        PPHolonomicDriveController.setRotationTargetOverride(this::getRotationTargetOverride);
     
         configureButtonBindings();
         m_robotDrive.calibrateGyro();
@@ -105,8 +107,7 @@ public class RobotContainer {
         //Efficient Commands
         NamedCommands.registerCommand("BeamBreak", new AutoBeamBreak(m_intakeSubsystem));
         NamedCommands.registerCommand("SetArm", new SetArm(m_arm, 55));//Adjust this, might be different for each shoot pos.
-        NamedCommands.registerCommand("SetArmAim", new SetArmAim(m_arm, m_robotDrive, m_ShooterSubsystem, m_bottom));
-        NamedCommands.registerCommand("SpeakerFieldRelativeDrive", new SpeakerFieldRelativeDrive(m_robotDrive, m_driverController, followPID));
+        NamedCommands.registerCommand("SetArmAim", new SetArmAim(m_arm, m_robotDrive.vision.LocationToSpeaker(), m_ShooterSubsystem, m_bottom));
         NamedCommands.registerCommand("AutoSpeakerShoot", new AutoSpeakerShoot(m_intakeSubsystem, m_ShooterSubsystem, m_bottom));
         m_chooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", m_chooser);
@@ -122,7 +123,7 @@ public class RobotContainer {
         new POVButton(m_driverController, 90).onTrue(new SpeakerShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom)
         .andThen(new FieldCentricDrive(m_robotDrive, m_driverController)));
         new POVButton(m_driverController, 270).toggleOnTrue(new ParallelCommandGroup(
-            new SetArmAim(m_arm, m_robotDrive, m_ShooterSubsystem, m_bottom), 
+            new SetArmAim(m_arm, m_robotDrive.vision.LocationToSpeaker(), m_ShooterSubsystem, m_bottom), 
             new SpeakerFieldRelativeDrive(m_robotDrive, m_driverController, followPID)));
         new JoystickButton(m_driverController, Button.kB.value).whileTrue(new StartEndCommand(() -> m_intakeSubsystem.setSpeed(1),
             () -> m_intakeSubsystem.setSpeed(0), m_intakeSubsystem));
@@ -153,15 +154,8 @@ public class RobotContainer {
     //private GenericEntry PID_kp = m_arm.tab.add("PID_kp", 0.5).getEntry();
     //private GenericEntry PID_ki = m_arm.tab.add("PID_ki", 0.5).getEntry();
     //private GenericEntry PID_kd = m_arm.tab.add("PID_kd", 0).getEntry();
-    public void SetArmDistanceAngle() {
-        new SetArmAim(m_arm, m_robotDrive, m_ShooterSubsystem, m_bottom);
-    }
-    public void SetArmAdjustmentActiveTrue() {
-        ArmAdjustmentActiveTF = true;
-    }
-    public void SetArmAdjustmentActiveFalse() {
-        ArmAdjustmentActiveTF = false;
-    }
+
+
 
     public void anglePublish(){
         SmartDashboard.putNumber("Arm Angle", m_arm.getMeasurement());
@@ -206,4 +200,17 @@ public class RobotContainer {
     return m_chooser.getSelected();
     }
 
+    Rotation2d speakerRotation = new Rotation2d(m_robotDrive.vision.LocationToSpeaker()[0], m_robotDrive.vision.LocationToSpeaker()[1]);
+    
+
+  public Optional<Rotation2d> getRotationTargetOverride(){
+    // Some condition that should decide if we want to override rotation
+    if(m_robotDrive.vision.Found7() && m_intakeSubsystem.sensor()) {
+        // Return an optional containing the rotation override (this should be a field relative rotation)
+        return Optional.of(speakerRotation);
+    } else {
+        // return an empty optional when we don't want to override the path's rotation
+        return Optional.empty();
+    }
+    }
 }

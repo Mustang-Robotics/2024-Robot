@@ -89,6 +89,20 @@ public class Vision {
         }
     }
 
+    public boolean Found7() {
+        var result = camera.getLatestResult();
+        if(result.hasTargets()){
+            List<PhotonTrackedTarget> targets = result.getTargets();
+            for(int i=0; i < targets.size(); i++){
+                if(targets.get(i).getFiducialId() == 7){
+                    return true;
+                }
+                }
+            }
+
+        return false;
+    }
+    
     public double[] LocationToSpeaker() {
         var result = camera.getLatestResult();
         double[] coordinates = new double[2];
