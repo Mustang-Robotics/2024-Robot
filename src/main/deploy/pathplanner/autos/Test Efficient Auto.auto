@@ -35,12 +35,6 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "BeamBreak"
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
@@ -64,16 +58,9 @@
                       }
                     },
                     {
-                      "type": "parallel",
+                      "type": "named",
                       "data": {
-                        "commands": [
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "SetArmAim"
-                            }
-                          }
-                        ]
+                        "name": "SetArmAim"
                       }
                     },
                     {
@@ -112,12 +99,6 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "BeamBreak"
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
@@ -141,16 +122,9 @@
                       }
                     },
                     {
-                      "type": "parallel",
+                      "type": "named",
                       "data": {
-                        "commands": [
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "SetArmAim"
-                            }
-                          }
-                        ]
+                        "name": "SetArmAim"
                       }
                     },
                     {
@@ -189,12 +163,6 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "BeamBreak"
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
@@ -218,16 +186,9 @@
                       }
                     },
                     {
-                      "type": "parallel",
+                      "type": "named",
                       "data": {
-                        "commands": [
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "SetArmAim"
-                            }
-                          }
-                        ]
+                        "name": "SetArmAim"
                       }
                     },
                     {

@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import frc.robot.commands.SetArm;
 import frc.robot.commands.SetArmAim;
+import frc.robot.commands.SetArmAimAuto;
 import frc.robot.commands.SetShooterSpeed;
 import frc.robot.commands.SpeakerFieldRelativeDrive;
 import frc.robot.commands.AutoIntakeNote;
@@ -93,9 +94,9 @@ public class RobotContainer {
             new FieldCentricDrive(m_robotDrive, m_driverController));
             //new RunCommand(
             //    () -> m_ShooterSubsystem.runFeeder(m_driverController.getRightTriggerAxis()), m_ShooterSubsystem);
-        m_climbingSubsystem.setDefaultCommand(
-            new RunCommand(
-                () -> m_climbingSubsystem.SetClimbSpeed(-m_driverController.getRawAxis(2) + m_driverController.getRawAxis(3)), m_climbingSubsystem));    
+        // m_climbingSubsystem.setDefaultCommand(
+        //     new RunCommand(
+        //         () -> m_climbingSubsystem.SetClimbSpeed(-m_driverController.getRawAxis(2) + m_driverController.getRawAxis(3)), m_climbingSubsystem));    
             
 
         NamedCommands.registerCommand("Intake", new AutoIntakeNote(m_arm, m_intakeSubsystem));//new IntakeNote(m_arm, m_intakeSubsystem));
@@ -107,7 +108,7 @@ public class RobotContainer {
         //Efficient Commands
         NamedCommands.registerCommand("BeamBreak", new AutoBeamBreak(m_intakeSubsystem));
         NamedCommands.registerCommand("SetArm", new SetArm(m_arm, 55));//Adjust this, might be different for each shoot pos.
-        NamedCommands.registerCommand("SetArmAim", new SetArmAim(m_arm, m_robotDrive.vision.LocationToSpeaker(), m_ShooterSubsystem, m_bottom));
+        NamedCommands.registerCommand("SetArmAim", new SetArmAimAuto(m_arm, m_robotDrive.vision.LocationToSpeaker(), m_ShooterSubsystem, m_bottom));
         NamedCommands.registerCommand("AutoSpeakerShoot", new AutoSpeakerShoot(m_intakeSubsystem, m_ShooterSubsystem, m_bottom));
         m_chooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", m_chooser);
@@ -117,32 +118,34 @@ public class RobotContainer {
     //private GenericEntry setPoint = m_arm.tab.add("setPoint", 90).getEntry();
     private void configureButtonBindings() { //NOTE: All button commands
          
-        new JoystickButton(m_driverController, Button.kX.value).whileTrue(new RunCommand(() -> m_robotDrive.setX(), m_robotDrive));
+        // new JoystickButton(m_driverController, Button.kX.value).whileTrue(new RunCommand(() -> m_robotDrive.setX(), m_robotDrive));
         //new JoystickButton(m_driverController, Button.kA.value).onTrue(new RunCommand(() -> m_arm.setGoal(setPoint.getDouble(0)), m_arm));
         //new JoystickButton(m_driverController, Button.kStart.value).toggleOnTrue(new IntakeNote(m_arm, m_intakeSubsystem));//new StartEndCommand(() -> m_ShooterSubsystem.runFeeder(.5),() -> m_ShooterSubsystem.runFeeder(0), m_ShooterSubsystem));
-        new POVButton(m_driverController, 90).onTrue(new SpeakerShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom)
-        .andThen(new FieldCentricDrive(m_robotDrive, m_driverController)));
-        new POVButton(m_driverController, 270).toggleOnTrue(new ParallelCommandGroup(
-            new SetArmAim(m_arm, m_robotDrive.vision.LocationToSpeaker(), m_ShooterSubsystem, m_bottom), 
-            new SpeakerFieldRelativeDrive(m_robotDrive, m_driverController, followPID)));
-        new JoystickButton(m_driverController, Button.kB.value).whileTrue(new StartEndCommand(() -> m_intakeSubsystem.setSpeed(1),
-            () -> m_intakeSubsystem.setSpeed(0), m_intakeSubsystem));
+        
 
 
-        new JoystickButton(m_driverController, Button.kStart.value).whileTrue(new ParallelCommandGroup(new PassingShot(m_robotDrive, m_driverController, followPID), new SetArm(m_arm, 50), new SetShooterSpeed(m_ShooterSubsystem, m_bottom, 3500, 0, 0)));
+        // new JoystickButton(m_driverController, Button.kStart.value).whileTrue(new ParallelCommandGroup(new PassingShot(m_robotDrive, m_driverController, followPID), new SetArm(m_arm, 50), new SetShooterSpeed(m_ShooterSubsystem, m_bottom, 3500, 0, 0)));
         
         
 
         //new JoystickButton(m_driverController, Button.kBack.value).onTrue(new InitializePrepareShoot(ArmAdjustmentActiveTF, this, m_ShooterSubsystem, m_bottom));
-        new JoystickButton(m_driverController, Button.kRightBumper.value).toggleOnTrue(new ParallelCommandGroup(new SetArm(m_arm, 115), AmpPathCommand).andThen(new AmpShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom)));
-        new JoystickButton(m_driverController, Button.kY.value).onTrue(new RunCommand(() -> m_arm.setGoal(115), m_arm));
+        // new JoystickButton(m_driverController, Button.kRightBumper.value).toggleOnTrue(new ParallelCommandGroup(new SetArm(m_arm, 115), AmpPathCommand).andThen(new AmpShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom)));
+        // new JoystickButton(m_driverController, Button.kY.value).onTrue(new RunCommand(() -> m_arm.setGoal(115), m_arm));
         //new JoystickButton(m_driverController, Button.kB.value).toggleOnTrue(stageBottomPathCommand.andThen(new AShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom)));
         //new JoystickButton(m_driverController, Button.kY.value).toggleOnTrue(stageMiddleCommand.andThen(new AShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom)));
-        new JoystickButton(m_driverController, Button.kA.value).toggleOnTrue(stageTopPathCommand.andThen(new AShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom)));
+        // new JoystickButton(m_driverController, Button.kA.value).toggleOnTrue(stageTopPathCommand.andThen(new AShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom)));
         //new JoystickButton(m_driverController, Button.kRightBumper.value).toggleOnTrue(new AmpShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom));
+
         new JoystickButton(m_driverController, Button.kLeftBumper.value).toggleOnTrue(new ParallelRaceGroup(
             new NoteCentricDrive(m_robotDrive, m_driverController, followPID), 
             new IntakeNote(m_arm, m_intakeSubsystem, m_driverController)));
+        new POVButton(m_driverController, 90).onTrue(new SpeakerShoot(m_arm, m_intakeSubsystem, m_ShooterSubsystem, m_bottom)
+            );
+        new POVButton(m_driverController, 270).whileTrue(new ParallelCommandGroup(
+            new SetArmAim(m_arm, m_robotDrive, m_ShooterSubsystem, m_bottom), 
+            new SpeakerFieldRelativeDrive(m_robotDrive, m_driverController, followPID)).andThen(new FieldCentricDrive(m_robotDrive, m_driverController)));
+        new JoystickButton(m_driverController, Button.kRightBumper.value).whileTrue(new StartEndCommand(() -> m_intakeSubsystem.setSpeed(1),
+            () -> m_intakeSubsystem.setSpeed(0), m_intakeSubsystem));
     }
 
     
